@@ -1,7 +1,9 @@
 {
   "name": "CinccinoBot",
   "packageManager": "yarn@4.0.0-rc.42",
+  "main": "/build/Bot/index.js",
   "scripts": {
+    "start": "npx tsc && node .",
     "dev": "yarn ts-node src/Bot/index.ts"
   },
   "dependencies": {
