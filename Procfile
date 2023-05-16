@@ -1,1 +1,1 @@
-service: npm start
+service: yarn dev
