@@ -1,1 +1,1 @@
-service: yarn dev
+web:  npx ts-node src/Bot/index.ts
