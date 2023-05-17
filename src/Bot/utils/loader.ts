@@ -9,7 +9,7 @@ export async function loadFolder(dir: string) {
 		console.log(files);
 		for(let file of files) {
 			await import(
-				file.replace(status === 'DEVELOPMENT' ? `src\\Bot` : `\\src\\Bot`, '../')
+				file.replace(status === 'DEVELOPMENT' ? `src\\Bot` : `app\\src\\Bot`, '../')
 			)
 			console.log(`File ${file} has been loaded`);
 		}
