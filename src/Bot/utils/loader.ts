@@ -4,7 +4,7 @@ export async function loadFolder(dir: string) {
 	let status = process.env.STATUS as string;
 	console.log(status);
 	try {
-		let path = status === 'DEVELOPMENT' ? `./src/Bot/modules/${dir}/**/*.ts` : `./src/Bot/modules/${dir}/**/*.ts`;
+		let path = status === 'DEVELOPMENT' ? `./src/Bot/modules/${dir}/**/*.ts` : `./app/src/Bot/modules/${dir}/**/*.ts`;
 		console.log(path);
 		let files: string[] = sync(path);
 		console.log(files);
