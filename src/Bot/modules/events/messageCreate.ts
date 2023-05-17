@@ -11,7 +11,8 @@ createEvent({
     if (message.author.bot) return;
 
     try {
-      const url = new URL(message.content);
+      const urlRegex = /(https?:\/\/[^ ]*)/;
+      let url = message.content.match(urlRegex);
       if (url) {
         handleMonitor('showdown_battle', message);
       }
