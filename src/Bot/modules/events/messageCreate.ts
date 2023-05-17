@@ -13,7 +13,6 @@ createEvent({
     try {
       const urlRegex = /(https?:\/\/[^ ]*)/;
       let url = message.content.match(urlRegex);
-      console.log(url);
       if (url) {
         handleMonitor('showdown_battle', message);
       }
