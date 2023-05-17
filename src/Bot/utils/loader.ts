@@ -1,15 +1,17 @@
 import { sync } from "glob";
+import path = require("path");
 
 export async function loadFolder(dir: string) {
 	let status = process.env.STATUS as string;
 	console.log(status);
+	console.log(path.dirname, path.relative("./src/Bot/utils/loader.ts", "./src/Bot/modules/events/ready.ts"));
 	try {
 		let path = status === 'DEVELOPMENT' ? `./src/Bot/modules/${dir}/**/*.ts` : `./app/src/Bot/modules/${dir}/**/*.js`;
 		let files: string[] = sync(path);
 		console.log(files);
 		for(let file of files) {
 			await import(
-				file.replace(status === 'DEVELOPMENT' ? `src\\Bot` : `app\\src\\Bot`, '../')
+				file.replace(status === 'DEVELOPMENT' ? `src\\Bot` : `app\\src\\Bot`, status === 'DEVELOPMENT' ? '../' : '../../')
 			)
 			console.log(`File ${file} has been loaded`);
 		}
