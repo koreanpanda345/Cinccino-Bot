@@ -1,1 +1,1 @@
-web:  npx ts-node src/Bot/index.ts
+service:  npx ts-node src/Bot/index.ts
