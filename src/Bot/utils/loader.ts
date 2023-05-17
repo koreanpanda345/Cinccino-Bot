@@ -4,9 +4,10 @@ import path = require("path");
 export async function loadFolder(dir: string) {
 	let status = process.env.STATUS as string;
 	console.log(status);
-	console.log(path.dirname, path.relative("./src/Bot/utils/loader.ts", "./src/Bot/modules/events/ready.ts"));
+	console.log(path.resolve())
+	console.log(path.relative("./app/src/Bot/utils/loader.ts", "./app/src/Bot/modules/events/ready.ts"));
 	try {
-		let path = status === 'DEVELOPMENT' ? `./src/Bot/modules/${dir}/**/*.ts` : `./app/src/Bot/modules/${dir}/**/*.js`;
+		let path = status === 'DEVELOPMENT' ? `./src/Bot/modules/${dir}/**/*.ts` : `./app/src/Bot/modules/${dir}/**/*.ts`;
 		let files: string[] = sync(path);
 		console.log(files);
 		for(let file of files) {
