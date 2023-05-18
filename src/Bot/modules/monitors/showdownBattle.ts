@@ -15,6 +15,7 @@ import { ShowdownBattle } from '../../../Showdown/models/ShowdownBattle';
 import axios from 'axios';
 import { BattleSystem } from '../../system/BattleSystem';
 import { stringify } from 'querystring';
+import { SubscriptionDatabase } from '../../../Database/classes/subscriptions';
 
 createMontior({
   id: 'showdown_battle',
@@ -139,15 +140,19 @@ createMontior({
 
                   actionRow.addComponents(cvsBtn);
                   let channel = await message.guild?.channels.cache.find((x) => x.name.includes('match-results'));
+                  let sub = new SubscriptionDatabase();
+
+                  // let row = sub.checkIfServerIsPremium(message.guildId!) ? [actionRow] : [];
+                  let row = [actionRow];
                   if (!channel)
                     message.channel.send({
                       embeds: [embed],
-                      components: [actionRow],
+                      components: row,
                     });
                   else
                     (channel as TextChannel).send({
                       embeds: [embed],
-                      components: [actionRow],
+                      components: row,
                     });
 
                   cache.bot.interactions.buttons.set('cvs_btn', async (ctx) => {

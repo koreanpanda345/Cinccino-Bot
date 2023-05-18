@@ -79,7 +79,7 @@ export class ShowdownBattle extends EventEmitter implements IShowdownBattle {
       // Identifying Pokemon
       case 'switch':
       case 'drag':
-        this.emit('switchAndDrag', this.getPokemonDetails(sections[0]), [
+        this.emit('switchAndDrag', this.getPokemonDetails(sections[0] + ':' + sections[1]), [
           Number(sections[2].split('/')[0]),
           Number(sections[2].split('/')[1]),
         ]);
@@ -95,7 +95,7 @@ export class ShowdownBattle extends EventEmitter implements IShowdownBattle {
           sections[1],
         );
         break;
-      case 'detailschange':
+      // case 'detailschange':
       case '-formechange':
         this.emit('detailschangeAndFormechange', this.getPokemonDetails(sections[0]), [
           Number(sections[1].split('/')[0]),
@@ -110,6 +110,14 @@ export class ShowdownBattle extends EventEmitter implements IShowdownBattle {
         break;
       case 'swap':
         this.emit('swap', sections[0], Number(sections[1]));
+        break;
+      case 'detailschange':
+        this.emit(
+          'detailschange',
+          sections[0].split(':')[0][0] + sections[0].split(':')[0][1],
+          sections[0].split(':')[1].trim(),
+          sections[1].includes(',') ? sections[1].split(',')[0] : sections[1],
+        );
         break;
       // Minor Actions
       case '-sidestart':
@@ -139,8 +147,13 @@ export class ShowdownBattle extends EventEmitter implements IShowdownBattle {
         );
         break;
       case '-weather':
-          this.emit('-weather', sections[0], sections.length > 1 ? sections[1] : undefined, sections.length > 2 ? sections[2] : undefined);
-          break;
+        this.emit(
+          '-weather',
+          sections[0],
+          sections.length > 1 ? sections[1] : undefined,
+          sections.length > 2 ? sections[2] : undefined,
+        );
+        break;
       // Default
       default:
       // console.log('Battle Command not implemented yet.');
@@ -150,10 +163,12 @@ export class ShowdownBattle extends EventEmitter implements IShowdownBattle {
   private getPokemonDetails(str: string) {
     const player = str.split(':')[0];
     const pokemon = str.split(':')[1].trim();
+    const realname = str.split(':')[2] === undefined ? pokemon : str.split(':')[2].split(',')[0];
     const data: PokemonId = {
       player: (player[0] + player[1]) as 'p1' | 'p2' | 'p3' | 'p4',
       position: player[2] as 'a' | 'b',
-      pokemon: pokemon.split(',')[0],
+      pokemon: realname,
+      name: pokemon.split(',')[0],
     };
 
     return data;

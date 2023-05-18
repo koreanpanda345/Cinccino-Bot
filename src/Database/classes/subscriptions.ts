@@ -1,40 +1,49 @@
-import { cache } from "../../Bot/core/cache";
-import Subscriptions from "../models/Subscriptions";
+import { cache } from '../../Bot/core/cache';
+import Subscriptions from '../models/Subscriptions';
 
 export class SubscriptionDatabase {
-	private _db = Subscriptions;
+  private _db = Subscriptions;
 
-	constructor() {}
+  constructor() {}
 
-	public checkIfServerIsPremium (discordServerId: string) {
-		return cache.database.subscriptions.has(discordServerId);
-	}
+  public checkIfServerIsPremium(discordServerId: string) {
+    return cache.database.subscriptions.has(discordServerId);
+  }
 
-	public async addSubscription(discordUserId: string, discordServerId: string) {
-		let newSub = new Subscriptions({
-			discord_user_id: discordUserId,
-			discord_server_id: discordServerId,
-		});
+  public async updateCache() {
+    let records = await this._db.find();
 
-		await newSub.save();
+    records.forEach((x) => {
+      if (!cache.database.subscriptions.has(x.discord_server_id))
+        cache.database.subscriptions.set(x.discord_server_id, x);
+    });
+  }
 
-		cache.database.subscriptions.set(discordServerId, newSub);
-	}
+  public async addSubscription(discordUserId: string, discordServerId: string) {
+    let newSub = new Subscriptions({
+      discord_user_id: discordUserId,
+      discord_server_id: discordServerId,
+    });
 
-	public async removeSubscriptionByServer(discordServerId: string) {
-		await this._db.deleteOne({
-			discord_server_id: discordServerId
-		});
+    await newSub.save();
 
-		cache.database.subscriptions.delete(discordServerId);
-	}
+    cache.database.subscriptions.set(discordServerId, newSub);
+  }
 
-	public async removeSubscriptionByUser(discordUserId: string) {
-		await this._db.deleteOne({
-			discord_user_id: discordUserId
-		});
+  public async removeSubscriptionByServer(discordServerId: string) {
+    await this._db.deleteOne({
+      discord_server_id: discordServerId,
+    });
 
-		let serverId = cache.database.subscriptions.find((x) => x.discord_user_id === discordUserId)?.discord_server_id;
-		cache.database.subscriptions.delete(serverId!);
-	}
+    cache.database.subscriptions.delete(discordServerId);
+  }
+
+  public async removeSubscriptionByUser(discordUserId: string) {
+    await this._db.deleteOne({
+      discord_user_id: discordUserId,
+    });
+
+    let serverId = cache.database.subscriptions.find((x) => x.discord_user_id === discordUserId)?.discord_server_id;
+    cache.database.subscriptions.delete(serverId!);
+  }
 }

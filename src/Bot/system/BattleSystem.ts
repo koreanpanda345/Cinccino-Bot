@@ -20,12 +20,7 @@ export class BattleSystem {
         hazard_setters: new Collection(),
         weather_setters: new Collection(),
         status_inflictor: new Collection(),
-        current_pokemon: {
-          nickname: '',
-          name: '',
-          kills: 0,
-          isDead: false,
-        },
+        current_pokemon: '',
         pokemons: new Collection<string, BattlePokemonData>(),
       });
     });
@@ -40,31 +35,51 @@ export class BattleSystem {
 
     _battle.on('poke', (data: { player: string; pokemon: string }, other: string[]) => {
       let name = data.pokemon.includes(', ') ? data.pokemon.split(', ')[0] : data.pokemon;
-      console.log(name);
+      // console.log(name);
       if (!this._data.players.get(data.player)?.pokemons.has(name)) {
         this._data.players.get(data.player)?.pokemons.set(name, {
           nickname: name || '',
           name: name,
+          forme: '',
           kills: 0,
           isDead: false,
         });
       }
     });
 
+    _battle.on('detailschange', (player: string, old: string, _new: string) => {
+      this._data.players.get(player)!.current_pokemon = _new;
+
+      // console.log(this.data.players.get(player)?.pokemons);
+      this._data.players.get(player)!.pokemons.set(_new, this._data.players.get(player)?.pokemons.get(old)!);
+      this._data.players.get(player)!.pokemons.delete(old);
+
+      this._data.players.get(player!)!.pokemons.get(_new)!.forme = _new;
+      this._data.players.get(player)!.pokemons.get(_new)!.name = _new;
+    });
+
     _battle.on('switchAndDrag', (pokemon: PokemonId, hp: [number, number]) => {
-      if (!this._data.players.get(pokemon.player)?.pokemons.has(pokemon.pokemon)) {
+      if (
+        !this._data.players.get(pokemon.player)?.pokemons.has(pokemon.pokemon) ||
+        !this._data.players.get(pokemon.player)?.pokemons.find((x) => x.name === pokemon.pokemon)
+      ) {
         this._data.players.get(pokemon.player)?.pokemons.set(pokemon.pokemon, {
           nickname: pokemon.name || '',
           name: pokemon.pokemon,
+          forme: pokemon.name?.includes('-mega') ? pokemon.name : '',
           kills: 0,
           isDead: false,
         });
       }
+      let poke = this._data.players.get(pokemon.player)?.pokemons.find((x) => x.name === pokemon.pokemon);
+      if (poke?.nickname !== pokemon.name) poke!.nickname = pokemon.name!;
 
       const player = pokemon.player;
-      const current_name = this._data.players.get(player)!.current_pokemon.name;
-      this._data.players.get(player)!.pokemons.set(current_name, this._data.players.get(player)!.current_pokemon);
-      this._data.players.get(player)!.current_pokemon = this._data.players.get(player)!.pokemons.get(pokemon.pokemon)!;
+      const current = this._data.players.get(player)!.current_pokemon;
+      console.log('Switch ', current);
+      this._data.players.get(player)!.current_pokemon = this._data.players
+        .get(player)!
+        .pokemons.get(pokemon.pokemon)!.name;
     });
 
     _battle.on('-status', (pokemon: PokemonId, status: string) => {
@@ -72,15 +87,15 @@ export class BattleSystem {
         const player = pokemon.player;
         this._data.players
           .get(player === 'p1' ? 'p2' : 'p1')
-          ?.status_inflictor.set(this._data.players.get(player)!.current_pokemon.name, {
+          ?.status_inflictor.set(this._data.players.get(player)!.current_pokemon, {
             inflictor: {
               side: pokemon.player === 'p1' ? 'p2' : 'p1',
-              pokemon: this._data.players.get(player === 'p1' ? 'p2' : 'p1')?.current_pokemon.name!,
+              pokemon: this._data.players.get(player === 'p1' ? 'p2' : 'p1')?.current_pokemon!,
             },
             status: status,
             inflicte: {
               side: pokemon.player as 'p1' | 'p2',
-              pokemon: this._data.players.get(player)!.current_pokemon.name,
+              pokemon: this._data.players.get(player)!.current_pokemon,
             },
           });
       }
@@ -91,7 +106,7 @@ export class BattleSystem {
         let player = side.split(':')[0];
 
         let _player = this._data.players.get(player === 'p1' ? 'p2' : 'p1');
-        _player?.hazard_setters.set('Stealth Rock', _player.current_pokemon);
+        _player?.hazard_setters.set('Stealth Rock', _player.pokemons.get(_player.current_pokemon!)!);
       }
     });
 
@@ -113,16 +128,6 @@ export class BattleSystem {
     _battle.on('-damage', async (pokemon: PokemonId, hp: string, from?: string) => {
       try {
         if (hp === '0 fnt') {
-          // fainted
-          if (!this._data.players.get(pokemon.player)?.pokemons.has(pokemon.pokemon)) {
-            this._data.players.get(pokemon.player)?.pokemons.set(pokemon.pokemon, {
-              nickname: pokemon.name || '',
-              name: pokemon.pokemon,
-              kills: 0,
-              isDead: true,
-            });
-          }
-
           if (from && (from === '[from] psn' || from === '[from] brn')) {
             // Status kill
             let _player = this._data.players.get(pokemon.player === 'p1' ? 'p2' : 'p1')!;
@@ -132,11 +137,17 @@ export class BattleSystem {
           } else if (from && from === '[from] Stealth Rock') {
           } else {
             // Normal Kill
-            if (this._data.players.get(pokemon.player === 'p1' ? 'p2' : 'p1')?.current_pokemon)
-              this._data.players.get(pokemon.player === 'p1' ? 'p2' : 'p1')!.current_pokemon.kills++;
+            if (this._data.players.get(pokemon.player === 'p1' ? 'p2' : 'p1')!.pokemons) {
+              let current = this._data.players.get(pokemon.player === 'p1' ? 'p2' : 'p1')?.current_pokemon!;
+              this._data.players.get(pokemon.player === 'p1' ? 'p2' : 'p1')!.pokemons.get(current)!.kills++;
+            }
           }
+          let current = this._data.players.get(pokemon.player)!.current_pokemon;
+
           this._data.players.get(pokemon.player)!.score--;
-          this._data.players.get(pokemon.player)!.current_pokemon.isDead = true;
+          this._data.players.get(pokemon.player)!.pokemons.get(current)!.isDead = true;
+          console.log('Kill ', this._data.players.get(pokemon.player === 'p1' ? 'p2' : 'p1')?.current_pokemon);
+          console.log('Kills', this._data.players.get(pokemon.player === 'p1' ? 'p2' : 'p1')?.pokemons);
         }
       } catch (err) {
         console.error(err);
