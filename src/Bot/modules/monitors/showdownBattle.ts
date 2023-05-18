@@ -19,7 +19,7 @@ import { SubscriptionDatabase } from '../../../Database/classes/subscriptions';
 
 createMontior({
   id: 'showdown_battle',
-  invoke: async (message: Message) => {
+  invoke: async (message: Message, premium: boolean) => {
     try {
       if ((message.channel as TextChannel).name.includes('live-battles')) {
         const urlRegex = /(https?:\/\/[^ ]*)/;
@@ -27,21 +27,24 @@ createMontior({
 
         let battlelink = '';
         if (links) battlelink = links[0];
+
         let battleId = battlelink && battlelink.split('/')[3];
 
         if (cache.showdown.battles.has(battleId) && battleId !== '') {
-          await message.channel.send('I am already tracking that match.');
+          await message.channel.send('I am already watching that match.');
           return;
         }
-
-        if (!battlelink.startsWith('https://replay.pokemonshowdown.com/')) {
+        let name = (message.channel as TextChannel).name;
+        let matchresultchannel = message.guild?.channels.cache.find(
+          (x) => x.name === name.replace('live-battles', '') + 'match-results',
+        ) as TextChannel;
+        if (!battlelink.startsWith('https://replay.pokemonshowdown.com')) {
           let server = Object.values(showdownServers).filter((s) => battlelink.includes(s.link))[0];
 
           if (!server) {
             await message.channel.send('This link is not a valid Pokemon Showdown battle url.');
             return;
           }
-
           const showdown = new ShowdownClient({
             name: server.name,
             server: server.server,
@@ -137,21 +140,22 @@ createMontior({
                   cvsBtn.setStyle(ButtonStyle.Primary);
 
                   actionRow.addComponents(cvsBtn);
-                  let channel = await message.guild?.channels.cache.find((x) => x.name.includes('match-results'));
-                  let sub = new SubscriptionDatabase();
-
-                  // let row = sub.checkIfServerIsPremium(message.guildId!) ? [actionRow] : [];
-                  let row = [actionRow];
-                  if (!channel)
-                    message.channel.send({
-                      embeds: [embed],
-                      components: row,
-                    });
-                  else
-                    (channel as TextChannel).send({
-                      embeds: [embed],
-                      components: row,
-                    });
+                  let channel: TextChannel | undefined;
+                  let row: ActionRowBuilder<ButtonBuilder>[] = [];
+                  if (premium) {
+                    row.push(actionRow);
+                    channel = matchresultchannel;
+                  } else {
+                    row.push(actionRow);
+                    channel = matchresultchannel;
+                    // channel = (await message.guild?.channels.cache.find(
+                    //   (x) => x.name === 'match-results',
+                    // )) as TextChannel;
+                  }
+                  channel.send({
+                    embeds: [embed],
+                    components: row,
+                  });
 
                   cache.bot.interactions.buttons.set('cvs_btn', async (ctx) => {
                     let message =
@@ -226,21 +230,22 @@ createMontior({
             cvsBtn.setStyle(ButtonStyle.Primary);
 
             actionRow.addComponents(cvsBtn);
-            let channel = await message.guild?.channels.cache.find((x) => x.name.includes('match-results'));
-            let sub = new SubscriptionDatabase();
+            let channel: TextChannel | undefined;
+            let row: ActionRowBuilder<ButtonBuilder>[] = [];
+            if (premium) {
+              row.push(actionRow);
+              channel = matchresultchannel;
+            } else {
+              row.push(actionRow);
+              channel = matchresultchannel;
+              // channel = (await message.guild?.channels.cache.find((x) => x.name === 'match-results')) as TextChannel;
+            }
 
-            // let row = sub.checkIfServerIsPremium(message.guildId!) ? [actionRow] : [];
-            let row = [actionRow];
-            if (!channel)
-              message.channel.send({
-                embeds: [embed],
-                components: row,
-              });
-            else
-              (channel as TextChannel).send({
-                embeds: [embed],
-                components: row,
-              });
+            if (!channel) channel = message.channel as TextChannel;
+            channel.send({
+              embeds: [embed],
+              components: row,
+            });
 
             cache.bot.interactions.buttons.set('csv_replay_btn', async (ctx) => {
               let message =

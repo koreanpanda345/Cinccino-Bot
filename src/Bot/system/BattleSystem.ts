@@ -38,7 +38,6 @@ export class BattleSystem {
 
     _battle.on('poke', (data: { player: string; pokemon: string }, other: string[]) => {
       let name = data.pokemon.includes(', ') ? data.pokemon.split(', ')[0] : data.pokemon;
-      // console.log(name);
       if (!this._data.players.get(data.player)?.pokemons.has(name)) {
         this._data.players.get(data.player)?.pokemons.set(name, {
           nickname: name || '',
@@ -53,7 +52,6 @@ export class BattleSystem {
     _battle.on('detailschange', (player: string, old: string, _new: string) => {
       this._data.players.get(player)!.current_pokemon = _new;
 
-      // console.log(this.data.players.get(player)?.pokemons);
       let old_pokemon = this._data.players.get(player)!.pokemons.find((x) => x.nickname === old);
       this._data.players.get(player)!.pokemons.set(_new, old_pokemon!);
       this._data.players.get(player)!.pokemons.delete(old_pokemon?.name!);
@@ -85,7 +83,6 @@ export class BattleSystem {
     });
 
     _battle.on('-status', (pokemon: PokemonId, status: string) => {
-      console.log(pokemon, status);
       if (['psn', 'brn', 'tox'].includes(status)) {
         const player = pokemon.player;
         this._data.players
@@ -114,7 +111,6 @@ export class BattleSystem {
     });
 
     _battle.on('-sideend', async (side: string, condition: string) => {
-      console.log(this._data.players.get('p1')?.hazard_setters);
       if (['move: Stealth Rock', 'move: Spikes', 'move: Toxic Spikes'].includes(condition)) {
         let player = side.split(':')[0];
         let _player = this._data.players.get(player === 'p1' ? 'p2' : 'p1');

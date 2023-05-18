@@ -14,7 +14,7 @@ createEvent({
       const urlRegex = /(https?:\/\/[^ ]*)/;
       let url = message.content.match(urlRegex);
       if (url) {
-        handleMonitor('showdown_battle', message);
+        await handleMonitor('premium_check', message);
       }
     } catch (err) {
       console.error(err);
