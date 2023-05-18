@@ -1,4 +1,12 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, Guild, TextChannel } from 'discord.js';
+import {
+  ActionRowBuilder,
+  ActivityType,
+  ButtonBuilder,
+  ButtonStyle,
+  EmbedBuilder,
+  Guild,
+  TextChannel,
+} from 'discord.js';
 import { createEvent } from '../../utils/creator';
 import { client } from '../../core/client';
 
@@ -34,6 +42,11 @@ createEvent({
           `Once the battle is done, I will send the match results to ${resultchannel}\n\n` +
           `That is all ^-^. If you need help, questions, or found a bug, make sure to join the support server\n`,
       );
+
+      client.user?.setActivity({
+        name: `How cute I am in ${client.guilds.cache.size} Server`,
+        type: ActivityType.Watching,
+      });
 
       embed.setColor('Green');
 

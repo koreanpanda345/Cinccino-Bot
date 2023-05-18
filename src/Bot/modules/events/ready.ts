@@ -9,17 +9,19 @@ createEvent({
     console.log('Client is ready');
     let status = process.env.STATUS as string;
 
-    if(status === "PRODUCTION") {
+    if (status === 'PRODUCTION') {
       client.user?.setActivity({
-        name: 'how cute I am!!',
+        name: `How cute I am in ${client.guilds.cache.size} Server`,
         type: ActivityType.Watching,
       });
-      client.user?.setStatus("online");
-    } else if(status === "DEVELOPMENT") {
-      client.user?.setActivity("Please do not use me at the moment. I am being worked on ^-^ I might leave due to being work on. Please wait till you see my normal status");
-      client.user?.setStatus("dnd");
+      client.user?.setStatus('online');
+    } else if (status === 'DEVELOPMENT') {
+      client.user?.setActivity({
+        name: `How cute I am in ${client.guilds.cache.size} Server`,
+        type: ActivityType.Watching,
+      });
+      client.user?.setStatus('dnd');
     }
-
 
     await import('./../../utils/deployer');
   },
