@@ -4,6 +4,10 @@ import { Status } from '../constants/status';
 export type BattleDataType = {
   winner: string;
   players: Collection<string, BattlePlayerData>;
+  battle: {
+            //Weather Pokemon Side
+    weather: [string, string, string];
+  }
   format: string;
   replay: string;
 };
@@ -11,8 +15,7 @@ export type BattleDataType = {
 export type BattlePlayerData = {
   username: string;
   status_inflictor: Collection<string, BattleStatusInflictorType>;
-  hazard_setters: Collection<string, BattlePokemonData>;
-  weather_setters: Collection<string, BattlePokemonData>;
+  hazard_setters: Collection<string, string>;
   current_pokemon: string;
   score: number;
   pokemons: Collection<string, BattlePokemonData>;

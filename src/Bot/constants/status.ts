@@ -1,4 +1,5 @@
 export enum Status {
-	Toxic = "tox",
-	Burn = "brn"
+  Toxic = 'tox',
+  Burn = 'brn',
+  Poison = 'psn',
 }

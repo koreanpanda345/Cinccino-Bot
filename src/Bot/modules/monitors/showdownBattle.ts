@@ -34,7 +34,7 @@ createMontior({
           return;
         }
 
-        if (battlelink) {
+        if (!battlelink.startsWith('https://replay.pokemonshowdown.com/')) {
           let server = Object.values(showdownServers).filter((s) => battlelink.includes(s.link))[0];
 
           if (!server) {
@@ -63,8 +63,6 @@ createMontior({
               cache.showdown.battles.set(battleId, sys);
 
               battle.on('win', (user) => {
-                console.log(sys.data);
-
                 let embed = new EmbedBuilder();
 
                 embed.setTitle(`${sys.data.players.at(0)?.username} vs ${sys.data.players.at(1)?.username}`);
@@ -174,8 +172,101 @@ createMontior({
               });
             });
           });
+        } else if (battlelink.startsWith('https://replay.pokemonshowdown.com')) {
+          let data = await axios.get(battlelink + '.log');
+          let battle = new ShowdownBattle(battleId);
+          let sys = new BattleSystem(battle);
+          battle.on('win', async (user: string) => {
+            let embed = new EmbedBuilder();
+
+            embed.setTitle(`Replay: ${sys.data.players.at(0)?.username} vs ${sys.data.players.at(1)?.username}`);
+            let team1 = '';
+            let team2 = '';
+            let team1Cvs = '';
+            let team2Cvs = '';
+            sys.data.players.at(0)?.pokemons.forEach((x) => {
+              if (x.name !== '') {
+                team1 += `${x.name} | ${x.kills} Kills | ${x.isDead ? 1 : 0} Deaths\n`;
+                team1Cvs += `${x.name},${x.kills},${x.isDead ? 1 : 0}\n`;
+              }
+            });
+
+            sys.data.players.at(1)?.pokemons.forEach((x) => {
+              if (x.name !== '') {
+                team2 += `${x.name} | ${x.kills} Kills | ${x.isDead ? 1 : 0} Deaths\n`;
+                team2Cvs += `${x.name},${x.kills},${x.isDead ? 1 : 0}\n`;
+              }
+            });
+
+            embed.setDescription(
+              `Winner: ||${sys.data.winner}||\nScore: ||${sys.data.players.at(0)?.score} - ${
+                sys.data.players.at(1)?.score
+              }||`,
+            );
+
+            embed.addFields(
+              { name: `${sys.data.players.at(0)?.username}`, value: `||${team1}||` },
+              { name: `${sys.data.players.at(1)?.username}`, value: `||${team2}||` },
+            );
+
+            embed.setColor(`Green`);
+
+            embed.setFooter({
+              text: `Format: ${sys.data.format}`,
+            });
+
+            embed.setURL(battlelink);
+
+            let actionRow = new ActionRowBuilder<ButtonBuilder>();
+
+            let cvsBtn = new ButtonBuilder();
+
+            cvsBtn.setCustomId('csv_replay_btn');
+            cvsBtn.setLabel('CSV Import');
+            cvsBtn.setStyle(ButtonStyle.Primary);
+
+            actionRow.addComponents(cvsBtn);
+            let channel = await message.guild?.channels.cache.find((x) => x.name.includes('match-results'));
+            let sub = new SubscriptionDatabase();
+
+            // let row = sub.checkIfServerIsPremium(message.guildId!) ? [actionRow] : [];
+            let row = [actionRow];
+            if (!channel)
+              message.channel.send({
+                embeds: [embed],
+                components: row,
+              });
+            else
+              (channel as TextChannel).send({
+                embeds: [embed],
+                components: row,
+              });
+
+            cache.bot.interactions.buttons.set('csv_replay_btn', async (ctx) => {
+              let message =
+                `Winner: ${sys.data.winner}\n` +
+                `Score: ${sys.data.players.at(0)?.score} - ${sys.data.players.at(1)?.score}\n` +
+                `\n` +
+                `${sys.data.players.at(0)?.username}\n` +
+                `${team1Cvs}\n` +
+                `${sys.data.players.at(1)?.username}\n` +
+                `${team2Cvs}\n`;
+
+              ctx.reply({
+                content: message,
+                ephemeral: true,
+              });
+            });
+          });
+          for (let line of data.data.split('\n')) {
+            let sections = line.split('|');
+            sections.shift();
+            let command = sections.shift();
+            battle.addLine(command, sections);
+          }
+        } else {
+          return;
         }
-        return;
       }
     } catch (err) {
       console.error(err);
