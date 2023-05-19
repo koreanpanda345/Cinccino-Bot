@@ -18,12 +18,12 @@ createEvent({
       if (!guild.channels.cache.find((x) => x.name.includes('live-battles')))
         await guild.channels.create({
           name: 'live-battles',
-          topic: 'Configurations:\n-ping',
+          topic: 'Put live battle links in this channel!\nConfigurations:\nstyle=Pretty\n',
         });
       if (!guild.channels.cache.find((x) => x.name.includes('match-results')))
         await guild.channels.create({
           name: 'match-results',
-          topic: 'Configurations:\n-embed',
+          topic: 'Configurations:\n',
         });
       let livechannel = guild.channels.cache.find((x) => x.name.includes('live-battles'));
       let resultchannel = guild.channels.cache.find((x) => x.name.includes('match-results'));

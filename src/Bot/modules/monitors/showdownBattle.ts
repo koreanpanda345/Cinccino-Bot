@@ -22,6 +22,16 @@ createMontior({
   invoke: async (message: Message, premium: boolean) => {
     try {
       if ((message.channel as TextChannel).name.includes('live-battles')) {
+        let description = (message.channel as TextChannel).topic;
+        let config = description?.split('Configurations:\n')[1].split('\n');
+        let _con = {
+          ping: '',
+          style: 'simple',
+        };
+        config?.forEach((x) => {
+          if (x.startsWith('ping')) _con.ping = x.split('=')[1].trim();
+          if (x.startsWith('style')) _con.style = x.split('=')[1].trim();
+        });
         const urlRegex = /(https?:\/\/[^ ]*)/;
         const links = message.content.match(urlRegex);
 
@@ -59,7 +69,18 @@ createMontior({
           await showdown.ws.connect();
 
           showdown.on('ready', async () => {
-            message.channel.send(`Watching the battle now!`);
+            if (_con.ping !== '') {
+              let pingRole = message.guild?.roles.cache.find(
+                (x) => x.name.toLowerCase().trim() === _con.ping.toLowerCase().trim(),
+              );
+
+              if (pingRole)
+                message.channel.send(
+                  `Watching the battle now! Hey,${pingRole}! There is a battle happening right now.`,
+                );
+            } else {
+              message.channel.send(`Watching the battle now!`);
+            }
             await showdown.ws.joinBattle(battleId, (battle: ShowdownBattle) => {
               let sys = new BattleSystem(battle);
 
@@ -73,13 +94,21 @@ createMontior({
                 let team2 = '';
                 sys.data.players.at(0)?.pokemons.forEach((x) => {
                   if (x.name !== '') {
-                    team1 += `${x.name} | ${x.kills} Kills | ${x.isDead ? 1 : 0} Deaths\n`;
+                    if (_con.style.toLowerCase().trim() === 'simple')
+                      team1 += `${x.name} | ${x.kills} Kills | ${x.isDead ? 1 : 0} Deaths\n`;
+                    else if (_con.style.toLowerCase().trim() === 'pretty')
+                      team1 += `***${x.name}*** has **${x.kills} Kills** and **${x.isDead ? 1 : 0} Deaths**\n`;
+                    else team1 += `***${x.name}*** has **${x.kills} Kills** and **${x.isDead ? 1 : 0} Deaths**\n`;
                   }
                 });
 
                 sys.data.players.at(1)?.pokemons.forEach((x) => {
                   if (x.name !== '') {
-                    team2 += `${x.name} | ${x.kills} Kills | ${x.isDead ? 1 : 0} Deaths\n`;
+                    if (_con.style.toLowerCase().trim() === 'simple')
+                      team2 += `${x.name} | ${x.kills} Kills | ${x.isDead ? 1 : 0} Deaths\n`;
+                    else if (_con.style.toLowerCase().trim() === 'pretty')
+                      team2 += `***${x.name}*** has **${x.kills} Kills** and **${x.isDead ? 1 : 0} Deaths**\n`;
+                    else team2 += `***${x.name}*** has **${x.kills} Kills** and **${x.isDead ? 1 : 0} Deaths**\n`;
                   }
                 });
 
@@ -160,6 +189,7 @@ createMontior({
           let data = await axios.get(battlelink + '.log');
           let battle = new ShowdownBattle(battleId);
           let sys = new BattleSystem(battle);
+          message.channel.send('Analyzing Replay Now!');
           battle.on('win', async (user: string) => {
             let embed = new EmbedBuilder();
 
@@ -168,13 +198,21 @@ createMontior({
             let team2 = '';
             sys.data.players.at(0)?.pokemons.forEach((x) => {
               if (x.name !== '') {
-                team1 += `${x.name} | ${x.kills} Kills | ${x.isDead ? 1 : 0} Deaths\n`;
+                if (_con.style.toLowerCase().trim() === 'simple')
+                  team1 += `${x.name} | ${x.kills} Kills | ${x.isDead ? 1 : 0} Deaths\n`;
+                else if (_con.style.toLowerCase().trim() === 'pretty')
+                  team1 += `***${x.name}*** has **${x.kills} Kills** and **${x.isDead ? 1 : 0} Deaths**\n`;
+                else team1 += `***${x.name}*** has **${x.kills} Kills** and **${x.isDead ? 1 : 0} Deaths**\n`;
               }
             });
 
             sys.data.players.at(1)?.pokemons.forEach((x) => {
               if (x.name !== '') {
-                team2 += `${x.name} | ${x.kills} Kills | ${x.isDead ? 1 : 0} Deaths\n`;
+                if (_con.style.toLowerCase().trim() === 'simple')
+                  team2 += `${x.name} | ${x.kills} Kills | ${x.isDead ? 1 : 0} Deaths\n`;
+                else if (_con.style.toLowerCase().trim() === 'pretty')
+                  team2 += `***${x.name}*** has **${x.kills} Kills** and **${x.isDead ? 1 : 0} Deaths**\n`;
+                else team2 += `***${x.name}*** has **${x.kills} Kills** and **${x.isDead ? 1 : 0} Deaths**\n`;
               }
             });
 
