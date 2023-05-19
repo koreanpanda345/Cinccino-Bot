@@ -71,19 +71,15 @@ createMontior({
                 embed.setTitle(`${sys.data.players.at(0)?.username} vs ${sys.data.players.at(1)?.username}`);
                 let team1 = '';
                 let team2 = '';
-                let team1Cvs = '';
-                let team2Cvs = '';
                 sys.data.players.at(0)?.pokemons.forEach((x) => {
                   if (x.name !== '') {
                     team1 += `${x.name} | ${x.kills} Kills | ${x.isDead ? 1 : 0} Deaths\n`;
-                    team1Cvs += `${x.name},${x.kills},${x.isDead ? 1 : 0}\n`;
                   }
                 });
 
                 sys.data.players.at(1)?.pokemons.forEach((x) => {
                   if (x.name !== '') {
                     team2 += `${x.name} | ${x.kills} Kills | ${x.isDead ? 1 : 0} Deaths\n`;
-                    team2Cvs += `${x.name},${x.kills},${x.isDead ? 1 : 0}\n`;
                   }
                 });
 
@@ -156,22 +152,6 @@ createMontior({
                     embeds: [embed],
                     components: row,
                   });
-
-                  cache.bot.interactions.buttons.set('cvs_btn', async (ctx) => {
-                    let message =
-                      `Winner: ${sys.data.winner}\n` +
-                      `Score: ${sys.data.players.at(0)?.score} - ${sys.data.players.at(1)?.score}\n` +
-                      `\n` +
-                      `${sys.data.players.at(0)?.username}\n` +
-                      `${team1Cvs}\n` +
-                      `${sys.data.players.at(1)?.username}\n` +
-                      `${team2Cvs}\n`;
-
-                    ctx.reply({
-                      content: message,
-                      ephemeral: true,
-                    });
-                  });
                 });
               });
             });
@@ -186,19 +166,15 @@ createMontior({
             embed.setTitle(`Replay: ${sys.data.players.at(0)?.username} vs ${sys.data.players.at(1)?.username}`);
             let team1 = '';
             let team2 = '';
-            let team1Cvs = '';
-            let team2Cvs = '';
             sys.data.players.at(0)?.pokemons.forEach((x) => {
               if (x.name !== '') {
                 team1 += `${x.name} | ${x.kills} Kills | ${x.isDead ? 1 : 0} Deaths\n`;
-                team1Cvs += `${x.name},${x.kills},${x.isDead ? 1 : 0}\n`;
               }
             });
 
             sys.data.players.at(1)?.pokemons.forEach((x) => {
               if (x.name !== '') {
                 team2 += `${x.name} | ${x.kills} Kills | ${x.isDead ? 1 : 0} Deaths\n`;
-                team2Cvs += `${x.name},${x.kills},${x.isDead ? 1 : 0}\n`;
               }
             });
 
@@ -245,22 +221,6 @@ createMontior({
             channel.send({
               embeds: [embed],
               components: row,
-            });
-
-            cache.bot.interactions.buttons.set('csv_replay_btn', async (ctx) => {
-              let message =
-                `Winner: ${sys.data.winner}\n` +
-                `Score: ${sys.data.players.at(0)?.score} - ${sys.data.players.at(1)?.score}\n` +
-                `\n` +
-                `${sys.data.players.at(0)?.username}\n` +
-                `${team1Cvs}\n` +
-                `${sys.data.players.at(1)?.username}\n` +
-                `${team2Cvs}\n`;
-
-              ctx.reply({
-                content: message,
-                ephemeral: true,
-              });
             });
           });
           for (let line of data.data.split('\n')) {
