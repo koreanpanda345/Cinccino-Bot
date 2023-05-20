@@ -10,6 +10,6 @@ createMontior({
 
 		let sub = new SubscriptionDatabase();
 
-		await handleMonitor('showdown_battle', message, sub.checkIfServerIsPremium(message.guildId!));
+		await handleMonitor('configurations', message, sub.checkIfServerIsPremium(message.guildId!));
 	}
 })

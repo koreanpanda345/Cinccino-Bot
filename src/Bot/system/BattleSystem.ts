@@ -12,10 +12,12 @@ export class BattleSystem {
     battle: {
       weather: ['', '', ''],
     },
+    turns: 0,
     format: '',
     replay: '',
+    details: [],
   };
-
+  private _current_move = '';
   constructor(private _battle: ShowdownBattle) {
     _battle.on('player', (player, username, avatar, rating) => {
       this._data.players.set(player, {
@@ -30,6 +32,10 @@ export class BattleSystem {
 
     _battle.on('win', (user) => {
       this._data.winner = user;
+    });
+
+    _battle.on('turn', (turn) => {
+      this._data.turns = turn;
     });
 
     _battle.on('tier', (tier) => {
@@ -131,6 +137,7 @@ export class BattleSystem {
     });
 
     _battle.on('move', async (attacker: PokemonId, target: PokemonId | string, move: string) => {
+      this._current_move = move;
       if (
         [
           'Explosion',
@@ -159,16 +166,41 @@ export class BattleSystem {
             );
             let _pokemon = this._data.players.get(_status!.inflictor.side)!.pokemons.get(_status!.inflictor.pokemon);
             _pokemon!.kills++;
+
+            // Porygon Died to Poison that was inflicted by Cinccino.
+            this._data.details.push({
+              type: 'status',
+              turn: this._data.turns,
+              killer: _player.current_pokemon,
+              kille: pokemon.pokemon,
+              method: `died to ${_status?.status} that was infliced by`,
+            });
           } else if (from && ['[from] Stealth Rock', '[from] Spikes', '[from] Toxic Spikes'].includes(from)) {
             // Hazards Kill
             let _player = this._data.players.get(pokemon.player === 'p1' ? 'p2' : 'p1');
             let pname = _player?.hazard_setters.get(from.split(']')[1].trim());
             _player!.pokemons.get(pname!)!.kills++;
+            this._data.details.push({
+              type: 'hazards',
+              turn: this._data.turns,
+              killer: _player!.current_pokemon,
+              kille: pokemon.pokemon,
+              // Porygon died to Stealth Rocks that was lefted by Cinccino
+              method: `died to ${from.split(']')[1].trim()} that was lefted by`,
+            });
           } else {
             // Normal Kill
             if (this._data.players.get(pokemon.player === 'p1' ? 'p2' : 'p1')!.pokemons) {
               let current = this._data.players.get(pokemon.player === 'p1' ? 'p2' : 'p1')?.current_pokemon!;
               this._data.players.get(pokemon.player === 'p1' ? 'p2' : 'p1')!.pokemons.get(current)!.kills++;
+              this._data.details.push({
+                type: 'normal',
+                turn: this._data.turns,
+                killer: current,
+                kille: pokemon.pokemon,
+                // Cinccino killed Porygon with Swift
+                method: `with ${this._current_move}`,
+              });
             }
           }
 

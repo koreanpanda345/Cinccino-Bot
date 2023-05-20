@@ -7,9 +7,17 @@ export type BattleDataType = {
   battle: {
             //Weather Pokemon Side
     weather: [string, string, string];
-  }
+  };
+  turns: number;
   format: string;
   replay: string;
+  details: {
+    type: "status" | "hazards" | "normal";
+    turn: number;
+    killer: string;
+    kille: string;
+    method: string;
+  }[];
 };
 
 export type BattlePlayerData = {
