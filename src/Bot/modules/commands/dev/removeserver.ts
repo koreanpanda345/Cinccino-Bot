@@ -1,28 +1,27 @@
 import { SlashCommandBuilder } from 'discord.js';
 import { createCommand } from '../../../utils/creator';
 import { SubscriptionDatabase } from '../../../../Database/classes/subscriptions';
-import { CommandContext } from '../../../core/commandContext';
 
 let data = new SlashCommandBuilder();
 
-data.setName('addserver');
-data.setDescription('Adds a server to the list of premium paid servers');
+data.setName('removeserver');
+data.setDescription('Removes a server from the list of premium paid servers');
 data.addUserOption((opt) => {
   opt.setName('user');
   opt.setDescription('user that paid for the subscription');
-  opt.setRequired(true);
+  opt.setRequired(false);
   return opt;
 });
 data.addStringOption((opt) => {
   opt.setName('server_id');
   opt.setDescription('The server id that the user paid subscription for.');
-  opt.setRequired(true);
+  opt.setRequired(false);
   return opt;
 });
 createCommand({
   data,
   supportServerOnly: true,
-  invoke: async (ctx: CommandContext) => {
+  invoke: async (ctx) => {
     let user = ctx.args?.getUser('user');
     let serverId = ctx.args?.getString('server_id');
     if (ctx.ctx!.guildId !== '1108167860318122106') {
@@ -38,10 +37,13 @@ createCommand({
     }
 
     const sub = new SubscriptionDatabase();
-
-    await sub.addSubscription(user?.id!, serverId!);
-	console.log("success");
-    await (await user!.createDM()).send(
+    if (!user && serverId) await sub.removeSubscriptionByServer(serverId);
+    else if (!serverId && user) await sub.removeSubscriptionByUser(user.id);
+    else ctx.ctx!.reply('I need either a user or a server id to do this action.');
+    console.log('success');
+    await (
+      await user!.createDM()
+    ).send(
       `Thank you for buying a subscription with me!!! Now the server with the id of ${serverId} can use premium features.`,
     );
   },

@@ -1,4 +1,10 @@
-import { ButtonInteraction, CommandInteraction, CommandInteractionOptionResolver, Interaction } from 'discord.js';
+import {
+  ButtonInteraction,
+  CommandInteraction,
+  CommandInteractionOptionResolver,
+  ContextMenuCommandInteraction,
+  Interaction,
+} from 'discord.js';
 import { createEvent } from '../../utils/creator';
 import { handleCommand, handleMonitor } from '../../utils/handler';
 
