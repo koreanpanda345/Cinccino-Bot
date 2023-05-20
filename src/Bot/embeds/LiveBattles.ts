@@ -39,7 +39,7 @@ export function createLiveBattleEmbed(
       else team2 += `***${x.name}*** has **${x.kills} Kills** and **${x.isDead ? 1 : 0} Deaths**\n`;
     }
   });
-
+  console.debug(data.players.at(0));
   embed.addFields(
     { name: `${data.players.at(0)?.username}`, value: `||${team1}||` },
     { name: `${data.players.at(1)?.username}`, value: `||${team2}||` },
