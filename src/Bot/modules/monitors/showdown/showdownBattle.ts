@@ -23,6 +23,7 @@ createMontior({
     },
   ) => {
     try {
+      console.debug(message.channel as TextChannel);
       if ((message.channel as TextChannel).name.includes('live-battles')) {
         const urlRegex = /(https?:\/\/[^ ]*)/;
         const links = message.content.match(urlRegex);
