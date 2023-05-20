@@ -15,7 +15,7 @@ export async function handleMonitor(name: string, ...args: any[]) {
       console.warn(`Monitor ${name} is disabled right now.`);
       return null;
     }
-
+    console.log(...args);
     await monitor.invoke(...args);
   } catch (err) {
     console.error(err);

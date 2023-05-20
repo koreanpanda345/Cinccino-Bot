@@ -2,20 +2,21 @@ import { Message, TextChannel } from 'discord.js';
 import { createMontior } from '../../../utils/creator';
 import { channel } from 'diagnostics_channel';
 import { handleMonitor } from '../../../utils/handler';
+import { cache } from '../../../core/cache';
 
 createMontior({
   id: 'configurations',
   invoke: async (message: Message, premium: boolean) => {
     let channel = message.channel as TextChannel;
     let topic = channel.topic;
-    console.log(topic);
     let _config = {
       ping: '',
       style: 'simple',
       forfeit_turns: 5,
       detailed: true,
     };
-    if (!topic) return await handleMonitor('showdown_battle', _config);
+
+    if (!topic) return await handleMonitor('showdown_battle', message, premium, _config);
     let config = topic?.split('Configurations:\n')[1].split('\n');
     config?.forEach((x) => {
       let value = x.split('=')[1].toLowerCase().trim();
@@ -28,7 +29,8 @@ createMontior({
       // Whether or not to send the detailed important turns or not in the embed.
       if (x.startsWith('detailed')) _config.detailed = value === 'yes' ? true : value === 'no' ? false : true;
     });
-
-    await handleMonitor('showdown_battle', message, premium, _config);
+    let monitor = cache.bot.monitors.get('showdown_battle');
+    console.log(message);
+    await monitor?.invoke(message, premium, _config);
   },
 });
