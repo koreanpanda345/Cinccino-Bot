@@ -84,17 +84,18 @@ createMontior({
               cache.showdown.battles.set(battleId, sys);
 
               battle.on('win', async (user) => {
-                if (sys.data.turns < config.forfeit_turns) {
-                  message.channel.send(
-                    'I will not send the match results of this match since the match was forfeited too early.',
-                  );
+                // Will test this tomorrow. I am hungry right now!
+                // if (sys.data.turns < config.forfeit_turns) {
+                //   message.channel.send(
+                //     'I will not send the match results of this match since the match was forfeited too early.',
+                //   );
 
-                  cache.showdown.battles.delete(battleId);
+                //   cache.showdown.battles.delete(battleId);
 
-                  await showdown.ws.leaveBattle(battleId);
+                //   await showdown.ws.leaveBattle(battleId);
 
-                  return;
-                }
+                //   return;
+                // }
 
                 let embed = createLiveBattleEmbed(sys.data, config);
 
