@@ -8,15 +8,15 @@ createMontior({
   invoke: async (message: Message, premium: boolean) => {
     let channel = message.channel as TextChannel;
     let topic = channel.topic;
-    let config = topic?.split('Configurations:\n')[1].split('\n');
-
+    console.log(topic);
     let _config = {
       ping: '',
       style: 'simple',
       forfeit_turns: 5,
       detailed: true,
     };
-
+    if (!topic) return await handleMonitor('showdown_battle', _config);
+    let config = topic?.split('Configurations:\n')[1].split('\n');
     config?.forEach((x) => {
       let value = x.split('=')[1].toLowerCase().trim();
       // Role to Ping
