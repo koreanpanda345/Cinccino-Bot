@@ -25,7 +25,7 @@ createMontior({
     try {
       console.debug('Success', message, premium, config);
       if (!message.guild?.members.me?.permissionsIn(message.channel as TextChannel).has('SendMessages'))
-        console.debug('Can not talk in channel');
+        (message.guild?.channels.cache.find((x) => x.name === 'general') as TextChannel).send("I can not talk in the chat.")
       if ((message.channel as TextChannel).name.includes('live-battles')) {
         const urlRegex = /(https?:\/\/[^ ]*)/;
         const links = message.content.match(urlRegex);
