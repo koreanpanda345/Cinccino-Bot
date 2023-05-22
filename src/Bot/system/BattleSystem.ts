@@ -108,19 +108,21 @@ export class BattleSystem {
     });
 
     _battle.on('-sidestart', async (side: string, condition: string) => {
-      if (['move: Stealth Rock', 'move: Spikes', 'move: Toxic Spikes'].includes(condition)) {
+      if (['move: Stealth Rock', 'Spikes', 'Toxic Spikes'].includes(condition)) {
         let player = side.split(':')[0];
 
         let _player = this._data.players.get(player === 'p1' ? 'p2' : 'p1');
-        _player?.hazard_setters.set(condition.split(':')[1].trim(), _player.current_pokemon);
+        let _con = condition.includes(':') ? condition.split(':')[1].trim() : condition.trim();
+        _player?.hazard_setters.set(_con, _player.current_pokemon);
       }
     });
 
     _battle.on('-sideend', async (side: string, condition: string) => {
-      if (['move: Stealth Rock', 'move: Spikes', 'move: Toxic Spikes'].includes(condition)) {
+      if (['move: Stealth Rock', 'Spikes', 'Toxic Spikes'].includes(condition)) {
         let player = side.split(':')[0];
         let _player = this._data.players.get(player === 'p1' ? 'p2' : 'p1');
-        _player?.hazard_setters.delete(condition.split(':')[1].trim());
+        let _con = condition.includes(':') ? condition.split(':')[1].trim() : condition.trim();
+        _player?.hazard_setters.delete(_con);
       }
     });
 
@@ -171,19 +173,22 @@ export class BattleSystem {
             this._data.details.push({
               type: 'status',
               turn: this._data.turns,
-              killer: _player.current_pokemon,
+              killer: _pokemon?.name!,
               kille: pokemon.pokemon,
               method: `died to ${_status?.status} that was infliced by`,
             });
           } else if (from && ['[from] Stealth Rock', '[from] Spikes', '[from] Toxic Spikes'].includes(from)) {
             // Hazards Kill
+            console.log(pokemon, hp, from);
             let _player = this._data.players.get(pokemon.player === 'p1' ? 'p2' : 'p1');
             let pname = _player?.hazard_setters.get(from.split(']')[1].trim());
+            console.log(pname);
             _player!.pokemons.get(pname!)!.kills++;
+            console.debug(_player);
             this._data.details.push({
               type: 'hazards',
               turn: this._data.turns,
-              killer: _player!.current_pokemon,
+              killer: _player?.pokemons.get(pname!)?.name!,
               kille: pokemon.pokemon,
               // Porygon died to Stealth Rocks that was lefted by Cinccino
               method: `died to ${from.split(']')[1].trim()} that was lefted by`,
