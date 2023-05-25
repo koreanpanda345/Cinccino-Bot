@@ -19,6 +19,12 @@ export const showdownServers: {
     ip: 'sim.radicalred.net:8000',
     server: 'ws://sim.radicalred.net:8000/showdown/websocket',
   },
+  dawn: {
+    name: 'Dawn',
+    link: "dawn.psim.us",
+    ip: "server.dawn-ps.com:8080",
+    server: "ws://server.dawn-ps.com:8080/showdown/websocket",
+  }
 };
 
 type ShowdownServerType = {
