@@ -20,7 +20,7 @@ const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_BOT_TOKEN 
       { body: commands },
     );
     const supportData: any = await rest.put(
-      Routes.applicationGuildCommands(client.user?.id as string, process.env.TEST_GUILD_ID as string),
+      Routes.applicationCommands(client.user?.id as string),
       { body: supportCommands },
     );
     console.log(`Successfully reloaded ${data.length} application (/) commands.`);
