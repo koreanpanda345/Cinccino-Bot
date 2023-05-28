@@ -15,12 +15,9 @@ const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_BOT_TOKEN 
   try {
     console.log(`Started refreshing ${commands.length} application (/) commands.`);
     console.log(`Started refreshing ${supportCommands.length} application (/) guild commands.`);
-    const data: any = await rest.put(
-      Routes.applicationGuildCommands(client.user?.id as string, process.env.TEST_GUILD_ID as string),
-      { body: commands },
-    );
+    const data: any = await rest.put(Routes.applicationCommands(client.user?.id as string), { body: commands });
     const supportData: any = await rest.put(
-      Routes.applicationCommands(client.user?.id as string),
+      Routes.applicationGuildCommands(client.user?.id as string, process.env.TEST_GUILD_ID as string),
       { body: supportCommands },
     );
     console.log(`Successfully reloaded ${data.length} application (/) commands.`);
