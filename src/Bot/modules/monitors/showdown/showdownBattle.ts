@@ -25,7 +25,9 @@ createMontior({
     try {
       console.debug('Success', message, premium, config);
       if (!message.guild?.members.me?.permissionsIn(message.channel as TextChannel).has('SendMessages'))
-        (message.guild?.channels.cache.find((x) => x.name === 'general') as TextChannel).send("I can not talk in the chat.")
+        (message.guild?.channels.cache.find((x) => x.name === 'general') as TextChannel).send(
+          'I can not talk in the chat.',
+        );
       if ((message.channel as TextChannel).name.includes('live-battles')) {
         const urlRegex = /(https?:\/\/[^ ]*)/;
         const links = message.content.match(urlRegex);
@@ -147,10 +149,10 @@ createMontior({
                     channel = matchresultchannel;
                   } else {
                     row.push(actionRow);
-                    channel = matchresultchannel;
-                    // channel = (await message.guild?.channels.cache.find(
-                    //   (x) => x.name === 'match-results',
-                    // )) as TextChannel;
+                    // channel = matchresultchannel;
+                    channel = (await message.guild?.channels.cache.find(
+                      (x) => x.name === 'match-results',
+                    )) as TextChannel;
                   }
                   channel.send({
                     embeds: [embed],

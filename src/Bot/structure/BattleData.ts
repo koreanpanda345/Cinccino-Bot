@@ -4,15 +4,12 @@ import { Status } from '../constants/status';
 export type BattleDataType = {
   winner: string;
   players: Collection<string, BattlePlayerData>;
-  battle: {
-            //Weather Pokemon Side
-    weather: [string, string, string];
-  };
+  field: BattleFieldData;
   turns: number;
   format: string;
   replay: string;
   details: {
-    type: "status" | "hazards" | "normal";
+    type: 'status' | 'hazards' | 'normal';
     turn: number;
     killer: string;
     kille: string;
@@ -20,10 +17,18 @@ export type BattleDataType = {
   }[];
 };
 
+export type BattleFieldData = {
+  weather: {
+    condition: string,
+    side: string,
+    pokemon: string,
+  }
+  hazards: Collection<string, Collection<string, string>>;
+  status: Collection<string, Collection<string, string>>;
+};
+
 export type BattlePlayerData = {
   username: string;
-  status_inflictor: Collection<string, BattleStatusInflictorType>;
-  hazard_setters: Collection<string, string>;
   current_pokemon: string;
   score: number;
   pokemons: Collection<string, BattlePokemonData>;
@@ -37,14 +42,3 @@ export type BattlePokemonData = {
   isDead: boolean;
 };
 
-export type BattleStatusInflictorType = {
-  inflictor: {
-    side: 'p1' | 'p2';
-    pokemon: string;
-  };
-  status: string;
-  inflicte: {
-    side: 'p1' | 'p2';
-    pokemon: string;
-  };
-};
